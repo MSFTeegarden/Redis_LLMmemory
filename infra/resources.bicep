@@ -2,8 +2,8 @@ param prefix string
 param location string = resourceGroup().location
 param tags object = {}
 
-// set runtime version specifically to Python 3.9. Update over time.
-param linuxFxVersion string = 'PYTHON|3.9'
+// set runtime version specifically to Python 3.10. Update over time. You may get a build error if the packages require a more recent python version than what you specify.
+param linuxFxVersion string = 'PYTHON|3.10'
 
 var webAppName = '${prefix}-web-${uniqueString(resourceGroup().id)}'
 var hostingPlanName = '${prefix}-plan-${uniqueString(resourceGroup().id)}'
@@ -14,11 +14,15 @@ resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-09-01-preview' = 
   name: '${prefix}-redis-${uniqueString(resourceGroup().id)}'
   location: location
   tags: tags
-  properties: {
-    highAvailability: 'Enabled'
-  }
   sku: {
-    name: 'Balanced_B0'
+    name: 'Balanced_B5'
+  }
+  identity: {
+    type: 'None'
+  }
+  properties: {
+    minimumTlsVersion: '1.2'
+    highAvailability: 'Enabled'
   }
 }
 
@@ -26,9 +30,10 @@ resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-09-01-pre
   name: 'default'
   parent: redisEnterprise
   properties: {
-    accessKeysAuthentication: 'Enabled'
-    evictionPolicy: 'NoEviction'
+    clientProtocol: 'Encrypted'
+    port: 10000
     clusteringPolicy: 'EnterpriseCluster'
+    evictionPolicy: 'NoEviction'
     modules: [
       {
         name: 'RediSearch'
@@ -37,7 +42,12 @@ resource redisdatabase 'Microsoft.Cache/redisEnterprise/databases@2024-09-01-pre
         name: 'RedisJSON'
       }
     ]
-    port: 10000
+    persistence: {
+      aofEnabled: false
+      rdbEnabled: false
+    }
+    deferUpgrade: 'NotDeferred'
+    accessKeysAuthentication: 'Enabled'
   }
 }
 
@@ -55,12 +65,17 @@ resource openAIAccount 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
 
 resource gpt4o 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
   parent: openAIAccount
-  name: 'my-gpt-4o'
+  name: 'demo-gpt-4o'
+  sku: {
+    name: 'Standard'
+    capacity: 100
+  }
   properties: {
     model: {
       format: 'OpenAI'
       name: 'gpt-4o'
     }
+    currentCapacity: 100
   }
 }
 
@@ -68,7 +83,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: hostingPlanName
   location: location
   sku: {
-    name: 'F1'
+    name: 'B2'
   }
   kind: 'linux'
   properties: {
@@ -84,28 +99,6 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
-      appSettings: [
-        {
-          // endpoint to the Redis instance. This is pulled automatically from the Redis resource that was just provisioned.
-          name: 'REDIS_ENDPOINT'
-          value: redisEnterprise.properties.hostName
-        }
-        {
-          // password for the Redis instance that was just created
-          name: 'REDIS_PASSWORD'
-          value: redisdatabase.properties.accessKeysAuthentication.key1
-        }
-        {
-          // endpoint for the Azure OpenAI account that was just created
-          name: 'AZURE_OPENAI_ENDPOINT'
-          value: openAIAccount.properties.endpoint
-        }
-        {
-          // password for the Azure OpenAI account that was just created
-          name: 'AZURE_OPENAI_API_KEY'
-          value: openAIAccount.listKeys().key1
-        }
-      ]
       linuxFxVersion: linuxFxVersion
       ftpsState: 'Disabled'
       appCommandLine: 'startup.sh'
@@ -121,6 +114,12 @@ resource web 'Microsoft.Web/sites@2022-03-01' = {
     properties: {
       SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
       ENABLE_ORYX_BUILD: 'true'
+      // set up environment variables for your Redis and OpenAI connections
+      //REDIS_ENDPOINT: redisEnterprise.properties.hostName
+      REDIS_ENDPOINT: '${redisEnterprise.properties.hostName}:${redisdatabase.properties.port}' // AMR uses port 10000. We need to specify this because many libraries default to port 6379.
+      REDIS_PASSWORD: redisdatabase.listKeys().primaryKey
+      AZURE_OPENAI_ENDPOINT: openAIAccount.properties.endpoint
+      AZURE_OPENAI_API_KEY: openAIAccount.listKeys().key1
     }
   }
 

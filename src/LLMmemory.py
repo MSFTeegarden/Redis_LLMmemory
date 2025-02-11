@@ -111,7 +111,7 @@ def ask_openai_session(historylength, user):
     systemmessage = get_system_instructions(user)
     messages.insert(0, systemmessage) # insert the system message at the beginning of the list
     response = client.chat.completions.create(
-        model="my-gpt-4o", # model = "deployment_name"
+        model="demo-gpt-4o", # model = "deployment_name"
         messages=messages,
         max_tokens=2000
     )
