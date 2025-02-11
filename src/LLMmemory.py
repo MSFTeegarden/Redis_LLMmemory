@@ -41,7 +41,7 @@ client = initAOAI()
 # Note: the endpoint must have the port included in the URL. For example, "mycache.eastus.redis.azure.net:10000"
 redis_url = "rediss://:" + redis_password + "@"+ redis_endpoint
 
-users = ["Satya", "Steve", "Bill"]
+users = ["Luke", "Leia", "Han"]
 
 @st.cache_resource
 def initSessionManager(redis_url):
@@ -65,10 +65,10 @@ redis_client = redis.Redis.from_url(redis_url)
 systeminstructions = ["Standard ChatGPT", "Extremely Brief", "Obnoxious American"]
 
 if "messages" not in st.session_state:
-    st.session_state.messages = session_manager.get_recent(top_k=5, session_tag="Satya")[1:] # load the last five messages into the chat box
+    st.session_state.messages = session_manager.get_recent(top_k=5, session_tag="Luke")[1:] # load the last five messages into the chat box
 
 if "userselectbox" not in st.session_state:
-    st.session_state.userselectbox = 'Satya' # set Satya as the default user
+    st.session_state.userselectbox = 'Luke' # set Luke as the default user
 
 if "contextwindow" not in st.session_state:
     st.session_state.contextwindow = 5 # set the default context window
@@ -164,7 +164,7 @@ def clear_text_and_session():
 
 main = st.container(height=480, key="main_text")
 prompt = st.chat_input(placeholder="Ask a question", key="main_prompt")
-user = st.sidebar.selectbox("Select User", ("Satya", "Steve", "Bill"), on_change=update_text_display(), key="userselectbox")
+user = st.sidebar.selectbox("Select User", ("Luke", "Leia", "Han"), on_change=update_text_display(), key="userselectbox")
 systeminstructions = st.sidebar.selectbox("System Instructions", systeminstructions, key="systeminstructions")
 
 if systeminstructions:
