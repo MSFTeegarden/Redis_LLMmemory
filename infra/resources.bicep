@@ -15,7 +15,7 @@ resource redisEnterprise 'Microsoft.Cache/redisEnterprise@2024-09-01-preview' = 
   location: location
   tags: tags
   sku: {
-    name: 'Balanced_B5'
+    name: 'Balanced_B0'
   }
   identity: {
     type: 'None'
