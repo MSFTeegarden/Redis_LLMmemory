@@ -12,6 +12,8 @@ This project contains several features that build on a basic chatbot example. Th
 * Ability to set a time-to-live (TTL) for chat memory, unique to each user
 * Configurable system instructions to change how the LLM responds to questions
 
+<div><img src="assets/LLMmemoryDemo.png" style="width: 1000px"> </div>
+
 ## Architecture
 
 The example uses three Azure components:
