@@ -43,10 +43,10 @@ The Azure Developer CLI (AZD) is a super useful tool to provision resources and 
     ```
 1. Follow command prompt to enter environment name and select subscription
 1. This will create all the resources needed to run the sample:
-- Azure App Services Web App
-- Azure OpenAI Service
-- Azure Managed Redis
-1. AZD will also deploy the code to the App Services instance. Once it has completed, open the Default domain (e.g. <yourappname>.azurewebsites.net) and the app should be running!
+  - Azure App Services Web App
+  - Azure OpenAI Service
+  - Azure Managed Redis
+5. AZD will also deploy the code to the App Services instance. Once it has completed, open the Default domain (e.g. <yourappname>.azurewebsites.net) and the app should be running!
 
 ### Cleaning Up Resources
 To clean up the environment, run 
