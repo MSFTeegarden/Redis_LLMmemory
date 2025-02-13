@@ -32,18 +32,21 @@ The secret sauce of this example is using Redis, which is extremely flexible and
 ### Deploy the project using the Azure Developer CLI
 The Azure Developer CLI (AZD) is a super useful tool to provision resources and code on Azure with minimal fuss. Follow these instructions to get going: 
 
-1. Open a command prompt
-2. Change directory to the project folder where the azure.yaml file is located
-3. Run:
+1. Clone the repository and change to the main project folder, where the azure.yaml file is located:
+   ```
+   git clone https://github.com/redis-developer/redis-rag-workbench.git
+   cd redis-rag-workbench
+   ```
+1. Run:
     ```
     azd up
     ```
-4. Follow command prompt to enter environment name and select subscription
-5. This will create all the resources needed to run the sample:
+1. Follow command prompt to enter environment name and select subscription
+1. This will create all the resources needed to run the sample:
 - Azure App Services Web App
 - Azure OpenAI Service
 - Azure Managed Redis
-6. AZD will also deploy the code to the App Services instance. Once it has completed, open the Default domain (e.g. <yourappname>.azurewebsites.net) and the app should be running!
+1. AZD will also deploy the code to the App Services instance. Once it has completed, open the Default domain (e.g. <yourappname>.azurewebsites.net) and the app should be running!
 
 ### Cleaning Up Resources
 To clean up the environment, run 
